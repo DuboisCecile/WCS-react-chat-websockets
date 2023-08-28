@@ -26,6 +26,10 @@ function App() {
         newSocket.on('messageFromServer', (newMessage) => {
             setMessageList((msgs) => [...msgs, newMessage]);
         });
+
+        return () => {
+            newSocket.disconnect();
+        };
     }, []);
 
     return (
