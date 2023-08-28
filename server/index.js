@@ -18,4 +18,12 @@ io.on('connect', (socket) => {
     socket.on('disconnect', () => {
         console.log('user disconnected');
     });
+    socket.emit('initialMessageList', messages);
+
+    socket.on('messageFromClient', (messageTextAndAuthor) => {
+        const newMessage = { id: uniqid(), ...messageTextAndAuthor };
+        console.log('new message from a client: ', newMessage);
+        messages.push(newMessage);
+        io.emit('messageFromServer', newMessage);
+    });
 }); // On dit au socket io d'écouter les événements de connexion et de déconnexion des clients : à chaque fois qu'un client se connecte, il exécuté la fonction callback passée en paramètre. L'objet socket représente la connexion entre le serveur et un des clients. Sur cette socket, on programme un évènement. A chaque fois qu'un client se déconnecte, on exécute la fonction callback passée en paramètre.

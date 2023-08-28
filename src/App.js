@@ -9,11 +9,23 @@ function App() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        socket.emit('messageFromClient', {
+            text: newMessageText,
+            author: nickName,
+        });
     };
 
     useEffect(() => {
         const newSocket = socketIOClient('http://localhost:3001');
         setSocket(newSocket);
+
+        newSocket.on('initialMessageList', (messages) => {
+            setMessageList(messages);
+        });
+
+        newSocket.on('messageFromServer', (newMessage) => {
+            setMessageList((msgs) => [...msgs, newMessage]);
+        });
     }, []);
 
     return (
@@ -27,26 +39,28 @@ function App() {
                 );
             })}
 
-            <form onSubmit={handleSubmit}>
-                <h2>New Message</h2>
-                <input
-                    type='text'
-                    name='author'
-                    placeholder='nickname'
-                    value={nickName}
-                    required
-                    onChange={(e) => setNickName(e.target.value)}
-                />
-                <input
-                    type='text'
-                    name='messageContent'
-                    placeholder='message'
-                    value={newMessageText}
-                    required
-                    onChange={(e) => setNewMessageText(e.target.value)}
-                />
-                <input type='submit' value='send' />
-            </form>
+            {!!socket && (
+                <form onSubmit={handleSubmit}>
+                    <h2>New Message</h2>
+                    <input
+                        type='text'
+                        name='author'
+                        placeholder='nickname'
+                        value={nickName}
+                        required
+                        onChange={(e) => setNickName(e.target.value)}
+                    />
+                    <input
+                        type='text'
+                        name='messageContent'
+                        placeholder='message'
+                        value={newMessageText}
+                        required
+                        onChange={(e) => setNewMessageText(e.target.value)}
+                    />
+                    <input type='submit' value='send' />
+                </form>
+            )}
         </div>
     );
 }
